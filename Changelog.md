@@ -1,6 +1,9 @@
 ### 0.7.5 (unreleased)
 
 
+Bugfixes:
+ * Code generator: Fix missing dependency tracking for abstract contracts.
+
 
 ### 0.7.4 (2020-10-19)
 
