@@ -3651,7 +3651,7 @@ string YulUtilFunctions::revertReasonIfDebug(string const& _message)
 
 string YulUtilFunctions::panicFunction(util::PanicCode _code)
 {
-	string functionName = "panic_error_" + toHex(uint64_t(_code));
+	string functionName = "panic_error_" + toCompactHexWithPrefix(uint64_t(_code));
 	return m_functionCollector.createFunction(functionName, [&]() {
 		return Whiskers(R"(
 			function <functionName>() {
@@ -3662,7 +3662,7 @@ string YulUtilFunctions::panicFunction(util::PanicCode _code)
 		)")
 		("functionName", functionName)
 		("selector", util::selectorFromSignature("Panic(uint256)").str())
-		("code", "0x" + toHex(_code))
+		("code", toCompactHexWithPrefix(_code))
 		.render();
 	});
 }
