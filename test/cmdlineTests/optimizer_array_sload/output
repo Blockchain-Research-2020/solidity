@@ -33,7 +33,7 @@ object "Arraysum_33" {
                         for { }
                         lt(vloc_i, _2)
                         {
-                            if eq(vloc_i, not(0)) { panic_error_17() }
+                            if eq(vloc_i, not(0)) { panic_error_0x11() }
                             vloc_i := add(vloc_i, 1)
                         }
                         {
@@ -58,20 +58,20 @@ object "Arraysum_33" {
                 if or(gt(newFreePtr, 0xffffffffffffffff), lt(newFreePtr, memPtr))
                 {
                     mstore(0, shl(224, 0x4e487b71))
-                    mstore(4, 65)
+                    mstore(4, 0x41)
                     revert(0, 0x24)
                 }
                 mstore(64, newFreePtr)
             }
             function checked_add_t_uint256(x, y) -> sum
             {
-                if gt(x, not(y)) { panic_error_17() }
+                if gt(x, not(y)) { panic_error_0x11() }
                 sum := add(x, y)
             }
-            function panic_error_17()
+            function panic_error_0x11()
             {
                 mstore(0, shl(224, 0x4e487b71))
-                mstore(4, 17)
+                mstore(4, 0x11)
                 revert(0, 0x24)
             }
         }
