@@ -1212,9 +1212,10 @@ void SMTEncoder::endVisit(IndexAccess const& _indexAccess)
 
 	auto arrayVar = dynamic_pointer_cast<smt::SymbolicArrayVariable>(array);
 	solAssert(arrayVar, "");
+	TypePointer baseType = _indexAccess.baseExpression().annotation().type;
 	defineExpr(_indexAccess, smtutil::Expression::select(
 		arrayVar->elements(),
-		expr(*_indexAccess.indexExpression())
+		expr(*_indexAccess.indexExpression(), keyType(baseType))
 	));
 	setSymbolicUnknownValue(
 		expr(_indexAccess),
@@ -1246,17 +1247,19 @@ void SMTEncoder::indexOrMemberAssignment(Expression const& _expr, smtutil::Expre
 			auto const& base = indexAccess->baseExpression();
 			if (dynamic_cast<Identifier const*>(&base))
 				base.accept(*this);
+
+			TypePointer baseType = base.annotation().type;
+			auto indexExpr = expr(*indexAccess->indexExpression(), keyType(baseType));
 			auto symbArray = dynamic_pointer_cast<smt::SymbolicArrayVariable>(m_context.expression(base));
 			solAssert(symbArray, "");
-			auto baseType = symbArray->type();
 			toStore = smtutil::Expression::tuple_constructor(
 				smtutil::Expression(make_shared<smtutil::SortSort>(smt::smtSort(*baseType)), baseType->toString(true)),
-				{smtutil::Expression::store(symbArray->elements(), expr(*indexAccess->indexExpression()), toStore), symbArray->length()}
+				{smtutil::Expression::store(symbArray->elements(), indexExpr, toStore), symbArray->length()}
 			);
 			m_context.expression(*indexAccess)->increaseIndex();
 			defineExpr(*indexAccess, smtutil::Expression::select(
 				symbArray->elements(),
-				expr(*indexAccess->indexExpression())
+				indexExpr
 			));
 			lastExpr = &indexAccess->baseExpression();
 		}
@@ -2238,6 +2241,16 @@ Expression const* SMTEncoder::leftmostBase(IndexAccess const& _indexAccess)
 	while (auto access = dynamic_cast<IndexAccess const*>(base))
 		base = &access->baseExpression();
 	return base;
+}
+
+TypePointer SMTEncoder::keyType(TypePointer _type)
+{
+	if (auto const* mapType = dynamic_cast<MappingType const*>(_type))
+		return mapType->keyType();
+	if (dynamic_cast<ArrayType const*>(_type))
+		return TypeProvider::uint256();
+	else
+		solAssert(false, "");
 }
 
 Expression const* SMTEncoder::innermostTuple(Expression const& _expr)

@@ -1,6 +1,7 @@
 ### 0.7.5 (unreleased)
 
-
+Bugfixes:
+ * SMTChecker: Fix internal error on implicit conversion from string literal to byte.
 
 ### 0.7.4 (2020-10-19)
 
